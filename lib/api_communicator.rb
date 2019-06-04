@@ -2,10 +2,24 @@ require 'rest-client'
 require 'json'
 require 'pry'
 
+def star_wars_info(input_url)
+  response_string = RestClient.get(input_url)
+  response_hash = JSON.parse(response_string)
+  return response_hash
+end
+
 def get_character_movies_from_api(character_name)
   #make the web request
-  response_string = RestClient.get('http://www.swapi.co/api/people/')
-  response_hash = JSON.parse(response_string)
+  response_hash = star_wars_info('http://www.swapi.co/api/people/')
+
+  response_hash["results"].each do |info|
+    if info["name"].downcase == character_name.downcase
+        films = info["films"]
+      return films
+    else
+      return "There has been a disturbance in the Force."
+    end
+  end
 
   # iterate over the response hash to find the collection of `films` for the given
   #   `character`
@@ -18,7 +32,12 @@ def get_character_movies_from_api(character_name)
   #  of movies by title. Have a play around with the puts with other info about a given film.
 end
 
+
+
 def print_movies(films)
+
+  puts films
+  #
   # some iteration magic and puts out the movies in a nice list
 end
 
