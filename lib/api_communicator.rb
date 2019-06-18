@@ -1,39 +1,44 @@
 require 'rest-client'
-require 'json'
+require 'JSON'
 require 'pry'
 
 
 
 def get_character_movies_from_api(character_name)
   
+  film_array = []
+  
   #make the web request
   response_string = RestClient.get('http://www.swapi.co/api/people/')
-  response_hash = JSON.parse(response_string)["results"]
+  response_array = JSON.parse(response_string)["results"]
   
-  film_array = []
-
-  if response_hash[0].values.include?(character_name)
-    response_hash[0]["films"].each do |url|
-      movie_response_string = RestClient.get(url)
-      movie_response_hash = JSON.parse(response_string)
-    end 
-  end 
-  binding.pry
-
-
-
-end 
   
   # iterate over the response hash to find the collection of `films` for the given
   #   `character`
+
+  character = response_array.find {|char| char['name'].downcase == character_name}
+
+  # collect those film API urls, make a web request to each URL to get the info
+  #  for that film
   
-    # collect those film API urls, make a web request to each URL to get the info
-    #  for that film
-    # return value of this method should be collection of info about each film.
-    #  i.e. an array of hashes in which each hash reps a given film
-    # this collection will be the argument given to `print_movies`
-    #  and that method will do some nice presentation stuff like puts out a list
-    #  of movies by title. Have a play around with the puts with other info about a given film.
+  films = character['films']
+
+ character_films = films.collect do |url|
+    response_string = RestClient.get(url)
+    response_array = JSON.parse(response_string)
+  end
+
+
+  # return value of this method should be collection of info about each film.
+  #  i.e. an array of hashes in which each hash reps a given film
+  # this collection will be the argument given to `print_movies`
+  #  and that method will do some nice presentation stuff like puts out a list
+  #  of movies by title. Have a play around with the puts with other info about a given film.
+  
+  
+
+end 
+  
     
   
       
@@ -53,6 +58,9 @@ end
 
   def print_movies(films)
   # some iteration magic and puts out the movies in a nice list
+  films.each do |movie|
+    puts "#{movie['title']}"
+  end
 end
 
 def show_character_movies(character)
